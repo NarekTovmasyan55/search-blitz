@@ -1,17 +1,33 @@
 import { useState } from 'react';
 import { AdvancedSearch } from '@/components/AdvancedSearch';
 import { GameCard } from '@/components/GameCard';
+import { SearchStats } from '@/components/SearchStats';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Game, popularGames, newGames, categories } from '@/data/mockGames';
-import { Sparkles, TrendingUp, Star, Gamepad2, Search, Filter } from 'lucide-react';
+import { 
+  Game, 
+  popularGames, 
+  newGames, 
+  categories, 
+  mockGames,
+  gamesByProvider,
+  gamesByCategory,
+  gamesByVolatility,
+  jackpotGames,
+  megawaysGames,
+  highRTPGames
+} from '@/data/mockGames';
+import { Sparkles, TrendingUp, Star, Gamepad2, Search, Filter, BarChart3, Shuffle, Eye } from 'lucide-react';
 
 const Index = () => {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [favoriteGames, setFavoriteGames] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [displayedGames, setDisplayedGames] = useState<Game[]>(popularGames);
+  const [currentFilter, setCurrentFilter] = useState<string>('popular');
+  const [showStats, setShowStats] = useState(false);
 
   const handleGameSelect = (game: Game) => {
     setSelectedGame(game);
@@ -33,9 +49,58 @@ const Index = () => {
     // Here you would implement game launch logic
   };
 
-  const filteredPopularGames = selectedCategory === 'All' 
-    ? popularGames 
-    : popularGames.filter(game => game.category === selectedCategory);
+  const handleFilter = (filterType: string, value: string) => {
+    let filtered: Game[] = [];
+    
+    switch (filterType) {
+      case 'provider':
+        filtered = gamesByProvider(value);
+        setCurrentFilter(`Provider: ${value}`);
+        break;
+      case 'category':
+        filtered = gamesByCategory(value);
+        setCurrentFilter(`Category: ${value}`);
+        setSelectedCategory(value);
+        break;
+      case 'volatility':
+        filtered = gamesByVolatility(value);
+        setCurrentFilter(`Volatility: ${value}`);
+        break;
+      case 'collection':
+        switch (value) {
+          case 'jackpot':
+            filtered = jackpotGames;
+            setCurrentFilter('Jackpot Games');
+            break;
+          case 'megaways':
+            filtered = megawaysGames;
+            setCurrentFilter('Megaways Games');
+            break;
+          case 'high-rtp':
+            filtered = highRTPGames;
+            setCurrentFilter('High RTP Games');
+            break;
+          case 'popular':
+            filtered = popularGames;
+            setCurrentFilter('Popular Games');
+            break;
+          default:
+            filtered = popularGames;
+        }
+        break;
+      default:
+        filtered = popularGames;
+    }
+    
+    setDisplayedGames(filtered);
+  };
+
+  const handleRandomGame = () => {
+    const randomIndex = Math.floor(Math.random() * mockGames.length);
+    setSelectedGame(mockGames[randomIndex]);
+  };
+
+  const filteredPopularGames = displayedGames;
 
   return (
     <div className="min-h-screen bg-gradient-casino">
@@ -55,6 +120,18 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <Button 
+                variant="ghost_casino" 
+                size="sm"
+                onClick={() => setShowStats(!showStats)}
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                {showStats ? 'Hide' : 'Show'} Stats
+              </Button>
+              <Button variant="ghost_casino" size="sm" onClick={handleRandomGame}>
+                <Shuffle className="w-4 h-4 mr-2" />
+                Random Game
+              </Button>
               <Button variant="ghost_casino" size="sm">
                 <Filter className="w-4 h-4 mr-2" />
                 Filters
@@ -124,85 +201,124 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Category Filter */}
-      <section className="py-8 border-b border-border/30">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
-            <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
-              Categories:
-            </span>
-            <Button
-              variant={selectedCategory === 'All' ? 'casino' : 'ghost_casino'}
-              size="sm"
-              onClick={() => setSelectedCategory('All')}
-            >
-              All Games
-            </Button>
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? 'casino' : 'ghost_casino'}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Main Content Area */}
+      <div className="container mx-auto px-4">
+        <div className="grid lg:grid-cols-4 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-3 space-y-16">
+            {/* Category Filter */}
+            <section className="py-8 border-b border-border/30">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Current Filter:
+                  </span>
+                  <Badge variant="outline" className="bg-gold/20 text-gold border-gold/30">
+                    {currentFilter}
+                  </Badge>
+                </div>
+                <Button
+                  variant={selectedCategory === 'All' ? 'casino' : 'ghost_casino'}
+                  size="sm"
+                  onClick={() => {
+                    setSelectedCategory('All');
+                    setDisplayedGames(popularGames);
+                    setCurrentFilter('All Games');
+                  }}
+                >
+                  All Games ({mockGames.length})
+                </Button>
+                {categories.map((category) => (
+                  <Button
+                    key={category}
+                    variant={selectedCategory === category ? 'casino' : 'ghost_casino'}
+                    size="sm"
+                    onClick={() => handleFilter('category', category)}
+                  >
+                    {category}
+                  </Button>
+                ))}
+              </div>
+            </section>
 
-      {/* New Games Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-3 mb-8">
-            <Sparkles className="w-6 h-6 text-neon-blue" />
-            <h2 className="text-3xl font-bold">New Releases</h2>
-            <Badge variant="secondary" className="bg-neon-blue/20 text-neon-blue border-neon-blue/30">
-              Fresh
-            </Badge>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {newGames.slice(0, 6).map((game) => (
-              <GameCard
-                key={game.id}
-                game={game}
-                onPlay={handlePlay}
-                onFavorite={handleFavorite}
-                isFavorited={favoriteGames.has(game.id)}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+            {/* New Games Section */}
+            <section>
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="w-6 h-6 text-neon-blue" />
+                  <h2 className="text-3xl font-bold">Latest Releases</h2>
+                  <Badge variant="secondary" className="bg-neon-blue/20 text-neon-blue border-neon-blue/30">
+                    {newGames.length} New
+                  </Badge>
+                </div>
+                <Button 
+                  variant="ghost_casino" 
+                  onClick={() => handleFilter('collection', 'new')}
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  View All New
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                {newGames.slice(0, 6).map((game) => (
+                  <GameCard
+                    key={game.id}
+                    game={game}
+                    onPlay={handlePlay}
+                    onFavorite={handleFavorite}
+                    isFavorited={favoriteGames.has(game.id)}
+                  />
+                ))}
+              </div>
+            </section>
 
-      <Separator className="opacity-30" />
+            <Separator className="opacity-30" />
 
-      {/* Popular Games Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-3 mb-8">
-            <Star className="w-6 h-6 text-gold" />
-            <h2 className="text-3xl font-bold">Popular Games</h2>
-            <Badge variant="outline" className="bg-gold/20 text-gold border-gold/30">
-              Trending
-            </Badge>
+            {/* Main Games Section */}
+            <section>
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <Star className="w-6 h-6 text-gold" />
+                  <h2 className="text-3xl font-bold">Featured Games</h2>
+                  <Badge variant="outline" className="bg-gold/20 text-gold border-gold/30">
+                    {displayedGames.length} games
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                {displayedGames.slice(0, 18).map((game) => (
+                  <GameCard
+                    key={game.id}
+                    game={game}
+                    onPlay={handlePlay}
+                    onFavorite={handleFavorite}
+                    isFavorited={favoriteGames.has(game.id)}
+                  />
+                ))}
+              </div>
+              
+              {displayedGames.length > 18 && (
+                <div className="text-center mt-8">
+                  <Button variant="outline" size="lg">
+                    Load More Games
+                  </Button>
+                </div>
+              )}
+            </section>
           </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {filteredPopularGames.slice(0, 12).map((game) => (
-              <GameCard
-                key={game.id}
-                game={game}
-                onPlay={handlePlay}
-                onFavorite={handleFavorite}
-                isFavorited={favoriteGames.has(game.id)}
-              />
-            ))}
-          </div>
+
+          {/* Sidebar - Stats */}
+          {showStats && (
+            <div className="lg:col-span-1">
+              <div className="sticky top-24">
+                <SearchStats onFilter={handleFilter} />
+              </div>
+            </div>
+          )}
         </div>
-      </section>
+      </div>
 
       {/* Selected Game Modal (placeholder) */}
       {selectedGame && (
