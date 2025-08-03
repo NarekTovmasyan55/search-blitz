@@ -61,7 +61,23 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Casino-specific colors
+				gold: 'hsl(var(--gold))',
+				'gold-dark': 'hsl(var(--gold-dark))',
+				'neon-blue': 'hsl(var(--neon-blue))',
+				'neon-purple': 'hsl(var(--neon-purple))',
+				'casino-red': 'hsl(var(--casino-red))'
+			},
+			backgroundImage: {
+				'gradient-gold': 'var(--gradient-gold)',
+				'gradient-casino': 'var(--gradient-casino)',
+				'gradient-neon': 'var(--gradient-neon)'
+			},
+			boxShadow: {
+				'gold': 'var(--shadow-gold)',
+				'neon': 'var(--shadow-neon)',
+				'card-casino': 'var(--shadow-card)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
