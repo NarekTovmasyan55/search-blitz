@@ -380,7 +380,7 @@ const Index = () => {
                 </Button>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 {newGames.slice(0, 6).map((game) => (
                   <GameCard
                     key={game.id}
@@ -407,7 +407,7 @@ const Index = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 {displayedGames.slice(0, 18).map((game) => (
                   <GameCard
                     key={game.id}
