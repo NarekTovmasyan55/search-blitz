@@ -31,12 +31,12 @@ interface SearchStatsProps {
 
 export function SearchStats({ onFilter }: SearchStatsProps) {
   const totalGames = mockGames.length;
-  const avgRTP = Math.round(
-    mockGames
-      .filter(game => game.rtp)
-      .reduce((sum, game) => sum + (game.rtp || 0), 0) / 
-    mockGames.filter(game => game.rtp).length * 100
-  ) / 100;
+  const gamesWithRTP = mockGames.filter(game => game.rtp);
+  const avgRTP = gamesWithRTP.length > 0 
+    ? Math.round(
+        gamesWithRTP.reduce((sum, game) => sum + (game.rtp || 0), 0) / gamesWithRTP.length * 100
+      ) / 100
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -49,7 +49,7 @@ export function SearchStats({ onFilter }: SearchStatsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-gold">{totalGames}</div>
               <div className="text-sm text-muted-foreground">Total Games</div>
@@ -85,7 +85,7 @@ export function SearchStats({ onFilter }: SearchStatsProps) {
               <Crown className="w-4 h-4 text-gold" />
               Special Collections
             </h4>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1 md:gap-2">
               <Button
                 variant="ghost_casino"
                 size="sm"
@@ -130,7 +130,7 @@ export function SearchStats({ onFilter }: SearchStatsProps) {
           {/* Volatility Filter */}
           <div>
             <h4 className="text-sm font-medium mb-2">Volatility Levels</h4>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1 md:gap-2">
               {volatilityLevels.map((level) => (
                 <Button
                   key={level}

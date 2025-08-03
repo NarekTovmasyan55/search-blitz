@@ -440,6 +440,13 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Mobile Stats - Full Width */}
+      {showStats && (
+        <div className="lg:hidden mt-8">
+          <SearchStats onFilter={handleFilter} />
+        </div>
+      )}
+
       {/* Selected Game Modal (placeholder) */}
       {selectedGame && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
